@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Об авторе проекта{% endblock %}
+{% block content %}
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <h1>Привет, я Максим!</h1>
+      <h3>Кое-что обо мне</h3>
+      <p>Ссылка на мой <a href="https://github.com/makskhaliosa">GitHub</a>.</p>
+      <p>Здесь можно посмотреть мое <a href="https://hh.ru/resume/27eabb40ff055c76e90039ed1f5a5133464762">резюме</a>.</p>
+      <p>А так выглядит мое рабочее место дома:</p>
+      <img src="{% static 'img/my_space.png' %}">
+    </div>
+  </div>
+{% endblock %}
