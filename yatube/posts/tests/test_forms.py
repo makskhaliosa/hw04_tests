@@ -37,7 +37,8 @@ class PostFormTests(TestCase):
         cls.posts_index = reverse('posts:index')
         cls.posts_group_list = reverse('posts:group_list',
                                        args=(cls.group.slug,))
-        cls.posts_profile = reverse('posts:profile', args=(cls.user,))
+        cls.posts_profile = reverse('posts:profile',
+                                    args=(cls.user.username,))
         cls.posts_post_detail = reverse('posts:post_detail',
                                         args=(cls.post.id,))
         cls.posts_post_create = reverse('posts:post_create')
@@ -51,9 +52,8 @@ class PostFormTests(TestCase):
         """
         post_count = Post.objects.count()
         form_data = {
-            'author': self.user,
             'text': 'Текст из формы',
-            'group': self.group
+            'group': self.group.id
         }
         response = self.authorized_client.post(
             self.posts_post_create,
@@ -86,7 +86,7 @@ class PostFormTests(TestCase):
         """
         form_data = {
             'text': 'Измененный текст из формы',
-            'group': self.group_2
+            'group': self.group_2.id
         }
         response = self.authorized_client.post(
             self.posts_post_edit,

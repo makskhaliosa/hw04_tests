@@ -17,12 +17,22 @@ class UserURLTest(TestCase):
         cls.user = User.objects.create_user(username='testuser')
         cls.authorized_client = Client()
         cls.authorized_client.force_login(cls.user)
+        cls.signup = reverse('users:signup')
+        cls.login = reverse('users:login')
+        cls.logout = reverse('users:logout')
+        cls.password_change_form = reverse('users:password_change_form')
+        cls.password_change_done = reverse('users:password_change_done')
+        cls.password_reset_form = reverse('users:password_reset_form')
+        cls.password_reset_done = reverse('users:password_reset_done')
+        cls.password_reset_confirm = reverse('users:password_reset_confirm',
+                                             args=('<uidb64>', '<token>',))
+        cls.password_reset_complete = reverse('users:password_reset_complete')
 
     def test_urls_exist_for_guest_user(self):
         """signup url доступен для незарегистрированного пользователя"""
         urls_for_anonymous_users = {
-            reverse('users:signup'): HTTPStatus.OK,
-            reverse('users:login'): HTTPStatus.OK
+            self.signup: HTTPStatus.OK,
+            self.login: HTTPStatus.OK
         }
         for url, status in urls_for_anonymous_users.items():
             with self.subTest(url=url):
@@ -32,15 +42,13 @@ class UserURLTest(TestCase):
     def test_urls_exist_for_authorized_user(self):
         """Проверяем url для авторизованного пользователя"""
         urls_for_authorized_users = {
-            reverse('users:logout'): HTTPStatus.OK,
-            reverse('users:password_change_form'): HTTPStatus.FOUND,
-            reverse('users:password_change_done'): HTTPStatus.FOUND,
-            reverse('users:password_reset_form'): HTTPStatus.OK,
-            reverse('users:password_reset_done'): HTTPStatus.OK,
-            reverse('users:password_reset_confirm',
-                    args=('<uidb64>', '<token>',)):
-            HTTPStatus.OK,
-            reverse('users:password_reset_complete'): HTTPStatus.OK,
+            self.logout: HTTPStatus.OK,
+            self.password_change_form: HTTPStatus.FOUND,
+            self.password_change_done: HTTPStatus.FOUND,
+            self.password_reset_form: HTTPStatus.OK,
+            self.password_reset_done: HTTPStatus.OK,
+            self.password_reset_confirm: HTTPStatus.OK,
+            self.password_reset_complete: HTTPStatus.OK
         }
         for url, status in urls_for_authorized_users.items():
             with self.subTest(url=url):

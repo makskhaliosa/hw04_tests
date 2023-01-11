@@ -32,19 +32,30 @@ class PostURLTests(TestCase):
             text='Тестовый текст',
             group=cls.group
         )
+        cls.posts_index = reverse('posts:index')
+        cls.posts_group_list = reverse('posts:group_list',
+                                       args=(cls.group.slug,))
+        cls.posts_profile = reverse('posts:profile',
+                                    args=(cls.user.username,))
+        cls.posts_post_detail = reverse('posts:post_detail',
+                                        args=(cls.post.id,))
+        cls.posts_post_create = reverse('posts:post_create')
+        cls.posts_post_edit = reverse('posts:post_edit',
+                                      args=(cls.post.id,))
 
     def test_page_url_exists_at_desired_location(self):
         """Проверяем, что страницы доступны всем пользователям.
         Несуществующая страница возвращает код ошибки 404"""
         pages_for_all_users = {
-            reverse('posts:index'): HTTPStatus.OK,
-            reverse('posts:group_list', args=(PostURLTests.group.slug,)):
+            self.posts_index: HTTPStatus.OK,
+            self.posts_group_list:
             HTTPStatus.OK,
-            reverse('posts:profile', args=(PostURLTests.user.username,)):
+            self.posts_profile:
             HTTPStatus.OK,
-            reverse('posts:post_detail', args=(PostURLTests.post.id,)):
+            self.posts_post_detail:
             HTTPStatus.OK,
-            '/unexisting_page/': HTTPStatus.NOT_FOUND
+            reverse('posts:post_detail', args=('0000',)):
+            HTTPStatus.NOT_FOUND
         }
         # Делаем запрос к странице и проверяем статус
         for address, status in pages_for_all_users.items():
@@ -63,14 +74,14 @@ class PostURLTests(TestCase):
         Проверяем, что создание поста доступно
         для зарегистрированного пользователя
         """
-        response = self.authorized_client.get(reverse('posts:post_create'))
+        response = self.authorized_client.get(self.posts_post_create)
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_edit_post_url_exists_for_author(self):
         """
         Проверяем, что для автора поста существует страница редактирования
         """
-        url = reverse('posts:post_edit', args=(self.post.id,))
+        url = self.posts_post_edit
         if self.authorized_client == self.post.author:
             response = self.authorized_client.get(url)
             self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -78,8 +89,8 @@ class PostURLTests(TestCase):
     def test_url_redirects_anonymous_user_to_user_login(self):
         """Проверяем переадресацию неавторизованного пользователя"""
         urls_for_athorized_users = {
-            reverse('posts:post_create'): '/auth/login/?next=/create/',
-            reverse('posts:post_edit', args=(self.post.id,)):
+            self.posts_post_create: '/auth/login/?next=/create/',
+            self.posts_post_edit:
             f'/auth/login/?next=/posts/{self.post.id}/edit/'
         }
         for url, redirect_url in urls_for_athorized_users.items():
@@ -89,25 +100,19 @@ class PostURLTests(TestCase):
 
     def test_edit_post_url_not_available_for_non_author(self):
         """Проверяем, что редактировать пост может только автор"""
-        url = reverse('posts:post_edit', args=(self.post.id,))
-        redirect_url = reverse('posts:post_detail', args=(self.post.id,))
         if self.authorized_client_two != self.post.author:
-            response = self.authorized_client_two.get(url)
-            self.assertRedirects(response, redirect_url)
+            response = self.authorized_client_two.get(self.posts_post_edit)
+            self.assertRedirects(response, self.posts_post_detail)
 
     def test_urls_use_correct_templates(self):
         """Проверяем, что url-адрес использует верный шаблон"""
         urls_templates_set = {
-            reverse('posts:index'): 'posts/index.html',
-            reverse('posts:group_list', args=(PostURLTests.group.slug,)):
-            'posts/group_list.html',
-            reverse('posts:profile', args=(PostURLTests.user.username,)):
-            'posts/profile.html',
-            reverse('posts:post_detail', args=(PostURLTests.post.id,)):
-            'posts/post_detail.html',
-            reverse('posts:post_edit', args=(self.post.id,)):
-            'posts/create_post.html',
-            reverse('posts:post_create'): 'posts/create_post.html'
+            self.posts_index: 'posts/index.html',
+            self.posts_group_list: 'posts/group_list.html',
+            self.posts_profile: 'posts/profile.html',
+            self.posts_post_detail: 'posts/post_detail.html',
+            self.posts_post_edit: 'posts/create_post.html',
+            self.posts_post_create: 'posts/create_post.html'
         }
         for url, template in urls_templates_set.items():
             with self.subTest(url=url):
