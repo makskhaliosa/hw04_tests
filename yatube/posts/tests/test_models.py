@@ -21,13 +21,13 @@ class PostModelTest(TestCase):
         )
         cls.post = Post.objects.create(
             author=cls.test_user,
-            text='Тестовый текст'
+            text='Тестовый текст на много символов'
         )
 
     def test_models_have_correct_object_names(self):
         """Проверяем, что у моделей корректно работает __str__."""
-        post = PostModelTest.post
-        group = PostModelTest.group
+        post = self.post
+        group = self.group
         group_title = group.title
         post_title = post.text[:NUMBER_OF_LETTERS]
         self.assertEqual(group_title, str(group))
@@ -35,7 +35,7 @@ class PostModelTest(TestCase):
 
     def test_post_verbose_name(self):
         """Проверяет понятные названия полей поста"""
-        post = PostModelTest.post
+        post = self.post
         field_verboses = {
             'text': 'текст поста',
             'author': 'автор'
@@ -47,7 +47,7 @@ class PostModelTest(TestCase):
 
     def test_post_help_text(self):
         """Проверяет понятные подсказки для поста"""
-        post = PostModelTest.post
+        post = self.post
         field_help_texts = {
             'text': 'введите текст поста',
             'group': 'выберите группу'
@@ -59,7 +59,7 @@ class PostModelTest(TestCase):
 
     def test_group_verbose_name(self):
         """Проверяет понятные названия полей группы"""
-        group = PostModelTest.group
+        group = self.group
         field_verboses = {
             'title': 'название группы',
             'slug': 'название адреса группы',
@@ -73,7 +73,7 @@ class PostModelTest(TestCase):
 
     def test_group_help_texts(self):
         """Проверяет понятные подсказки для группы"""
-        group = PostModelTest.group
+        group = self.group
         field_help_texts = {
             'title': 'дайте подходящее название группе',
             'slug': 'адрес не должен повторяться',

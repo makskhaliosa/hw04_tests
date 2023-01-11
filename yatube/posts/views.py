@@ -67,12 +67,15 @@ def post_detail(request, post_id):
 def post_create(request):
     template_name = 'posts/create_post.html'
     if request.method == 'POST':
-        form = PostForm(request.POST)
+        form = PostForm(
+            request.POST or None,
+            files=request.FILES or None
+        )
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
-            form.save()
-            return redirect('posts:profile', request.user)
+            post.save()
+            return redirect('posts:profile', request.user.username)
         return render(request, template_name, {'form': form})
     form = PostForm()
     return render(request, template_name, {'form': form})
@@ -87,6 +90,7 @@ def post_edit(request, post_id):
     is_edit = True
     form = PostForm(
         request.POST or None,
+        files=request.FILES or None,
         instance=post
     )
     context = {

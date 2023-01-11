@@ -1,7 +1,9 @@
+from http import HTTPStatus
+
 from django.test import TestCase, Client
 from django.contrib.auth import get_user_model
+from django.urls import reverse
 
-from http import HTTPStatus
 
 User = get_user_model()
 
@@ -19,26 +21,28 @@ class UserURLTest(TestCase):
     def test_urls_exist_for_guest_user(self):
         """signup url доступен для незарегистрированного пользователя"""
         urls_for_anonymous_users = {
-            '/auth/signup/': HTTPStatus.OK.value,
-            '/auth/login/': HTTPStatus.OK.value
+            reverse('users:signup'): HTTPStatus.OK,
+            reverse('users:login'): HTTPStatus.OK
         }
         for url, status in urls_for_anonymous_users.items():
             with self.subTest(url=url):
-                response = UserURLTest.guest_client.get(url)
+                response = self.guest_client.get(url)
                 self.assertEqual(response.status_code, status)
 
     def test_urls_exist_for_authorized_user(self):
         """Проверяем url для авторизованного пользователя"""
         urls_for_authorized_users = {
-            '/auth/logout/': HTTPStatus.OK.value,
-            '/auth/password_change/': HTTPStatus.FOUND.value,
-            '/auth/password_change/done/': HTTPStatus.FOUND.value,
-            '/auth/password_reset/': HTTPStatus.OK.value,
-            '/auth/password_reset/done/': HTTPStatus.OK.value,
-            '/auth/reset/<uidb64>/<token>/': HTTPStatus.OK.value,
-            '/auth/reset/done/': HTTPStatus.OK.value,
+            reverse('users:logout'): HTTPStatus.OK,
+            reverse('users:password_change_form'): HTTPStatus.FOUND,
+            reverse('users:password_change_done'): HTTPStatus.FOUND,
+            reverse('users:password_reset_form'): HTTPStatus.OK,
+            reverse('users:password_reset_done'): HTTPStatus.OK,
+            reverse('users:password_reset_confirm',
+                    args=('<uidb64>', '<token>',)):
+            HTTPStatus.OK,
+            reverse('users:password_reset_complete'): HTTPStatus.OK,
         }
         for url, status in urls_for_authorized_users.items():
             with self.subTest(url=url):
-                response = UserURLTest.authorized_client.get(url)
+                response = self.authorized_client.get(url)
                 self.assertEqual(response.status_code, status)
